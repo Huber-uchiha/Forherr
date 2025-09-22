@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-analytics.js"></script>
     <title>My Confession ❤️</title>
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -646,6 +649,22 @@
         }
     </style>
 </head>
+<!-- Comment Button -->
+<div style="text-align:center; margin:40px 0;">
+  <a href="comments.html">
+    <button style="
+      padding: 12px 20px; 
+      border-radius: 8px; 
+      border: none; 
+      background: #007BFF; 
+      color: #fff; 
+      font-size: 16px; 
+      cursor: pointer;">
+      💬 Go to Comments
+    </button>
+  </a>
+</div>
+
 <body>
     <!-- Particles Background -->
     <div id="particles-js"></div>
@@ -1143,218 +1162,9 @@
         }
     </script>
     <script type="module">
-  // Import the Firebase modules
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-
-  // Your Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBTcZhqWNtQfzwmVSLUj-UVrNSmfso8M-E",
-    authDomain: "comment-42a8d.firebaseapp.com",
-    databaseURL: "https://comment-42a8d-default-rtdb.firebaseio.com",
-    projectId: "comment-42a8d",
-    storageBucket: "comment-42a8d.firebasestorage.app", 
-    messagingSenderId: "907945120076",
-    appId: "1:907945120076:web:8c317d0eb2e229e9e2bfe9",
-    measurementId: "G-1WSYWSV25C"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  // Helper function to sanitize input
-  function sanitize(str) {
-    return String(str || '').replace(/[<>]/g, '').trim();
-  }
-
-  // Generic function to setup comments for a section
-  function setupComments(sectionId, dbPath) {
-    const form = document.getElementById(`${sectionId}Form`);
-    const nameInput = document.getElementById(`${sectionId}Name`);
-    const textInput = document.getElementById(`${sectionId}Text`);
-    const submitBtn = document.getElementById(`${sectionId}Submit`);
-    const listEl = document.getElementById(`${sectionId}List`);
-    const commentsRef = ref(db, dbPath);
-
-    // Render a single comment
-    function renderComment(data) {
-      const li = document.createElement('li');
-      li.className = 'commentItem';
-      li.innerHTML = `
-        <div class="commentMeta">${sanitize(data.name || 'Anonymous')} • ${new Date(data.timestamp).toLocaleString()}</div>
-        <div>${sanitize(data.text)}</div>
-      `;
-      listEl.prepend(li);
-    }
-
-    // Listen for new comments
-    onChildAdded(commentsRef, (snapshot) => {
-      renderComment(snapshot.val());
-    });
-
-    // Handle form submission
-    submitBtn.addEventListener('click', async () => {
-      const name = nameInput.value.trim();
-      const text = textInput.value.trim();
-      if (!
-        if(!text) return;
-        submitBtn.disabled = true;
-        try {
-          await push(commentsRef, { name, text, createdAt: Date.now() });
-          nameInput.value = '';
-          textInput.value = '';
-        } catch(e){
-          console.error('Comment save failed', e);
-          alert('Failed to post. Check console.');
-        } finally {
-          submitBtn.disabled = false;
-        }
-      });
-
-      // About You Comments Firebase logic
+      // Use the new Firebase config from your prompt
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-      import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
-
-      // About You comments refs
-      const aboutYouCommentsRef = ref(db, 'aboutYouComments');
-      const aboutYouNameInput = document.getElementById('aboutYouCommentName');
-      const aboutYouTextInput = document.getElementById('aboutYouCommentText');
-      const aboutYouSubmitBtn = document.getElementById('aboutYouCommentSubmit');
-      const aboutYouListEl = document.getElementById('aboutYouCommentList');
-
-      function renderAboutYouComment(data){
-        const li = document.createElement('li');
-        li.className = 'commentItem';
-        const meta = document.createElement('div');
-        meta.className = 'commentMeta';
-        const ts = data.createdAt || Date.now();
-        const date = (typeof ts === 'number') ? new Date(ts) : new Date();
-        meta.textContent = `${sanitize(data.name || 'Anonymous')} • ${date.toLocaleString()}`;
-        const txt = document.createElement('div');
-        txt.textContent = sanitize(data.text || '');
-        li.appendChild(meta);
-        li.appendChild(txt);
-        aboutYouListEl.prepend(li);
-      }
-
-      // Listen for new About You comments in realtime
-      onChildAdded(aboutYouCommentsRef, (snapshot) => {
-        const val = snapshot.val();
-        if(val) renderAboutYouComment(val);
-      });
-
-      // submit handler for About You comments
-      aboutYouSubmitBtn.addEventListener('click', async () => {
-        const name = sanitize(aboutYouNameInput.value) || 'Anonymous';
-        const text = sanitize(aboutYouTextInput.value);
-        if(!text) return;
-        aboutYouSubmitBtn.disabled = true;
-        try {
-          await push(aboutYouCommentsRef, { name, text, createdAt: Date.now() });
-          aboutYouNameInput.value = '';
-          aboutYouTextInput.value = '';
-        } catch(e){
-          console.error('About You comment save failed', e);
-          alert('Failed to post. Check console.');
-        } finally {
-          aboutYouSubmitBtn.disabled = false;
-        }
-      });
-
-      // Per-confession comments logic
-      const confessionCommentForms = document.querySelectorAll('.confessionCommentForm');
-    confessionCommentForms.forEach((form, idx) => {
-        const confessionNum = form.getAttribute('data-confession');
-        const nameInput = form.querySelector('.confessionCommentName');
-        const textInput = form.querySelector('.confessionCommentText');
-        const submitBtn = form.querySelector('.confessionCommentSubmit');
-        const listEl = form.parentElement.querySelector('.confessionCommentList');
-        const confessionCommentsRef = ref(db, `confessionComments${confessionNum}`);
-
-        function sanitize(str){
-            return String(str || '').replaceAll('<','&lt;').replaceAll('>','&gt;').trim();
-        }
-        function renderComment(data){
-            const li = document.createElement('li');
-            li.className = 'commentItem';
-            const meta = document.createElement('div');
-            meta.className = 'commentMeta';
-            const ts = data.createdAt || Date.now();
-            const date = (typeof ts === 'number') ? new Date(ts) : new Date();
-            meta.textContent = `${sanitize(data.name || 'Anonymous')} • ${date.toLocaleString()}`;
-            const txt = document.createElement('div');
-            txt.textContent = sanitize(data.text || '');
-            li.appendChild(meta);
-            li.appendChild(txt);
-            listEl.prepend(li);
-        }
-        onChildAdded(confessionCommentsRef, (snapshot) => {
-            const val = snapshot.val();
-            if(val) renderComment(val);
-        });
-        submitBtn.addEventListener('click', async () => {
-            const name = sanitize(nameInput.value) || 'Anonymous';
-            const text = sanitize(textInput.value);
-            if(!text) return;
-            submitBtn.disabled = true;
-            try {
-                await push(confessionCommentsRef, { name, text, createdAt: Date.now() });
-                nameInput.value = '';
-                textInput.value = '';
-            } catch(e){
-                alert('Failed to post. Check console.');
-            } finally {
-                submitBtn.disabled = false;
-            }
-        });
-    });
-
-    // Doubt Comments logic
-    const doubtCommentsRef = ref(db, 'doubtComments');
-    const doubtNameInput = document.getElementById('doubtCommentName');
-    const doubtTextInput = document.getElementById('doubtCommentText');
-    const doubtSubmitBtn = document.getElementById('doubtCommentSubmit');
-    const doubtListEl = document.getElementById('doubtCommentList');
-    function sanitize(str){
-        return String(str || '').replaceAll('<','&lt;').replaceAll('>','&gt;').trim();
-    }
-    function renderDoubtComment(data){
-        const li = document.createElement('li');
-        li.className = 'commentItem';
-        const meta = document.createElement('div');
-        meta.className = 'commentMeta';
-        const ts = data.createdAt || Date.now();
-        const date = (typeof ts === 'number') ? new Date(ts) : new Date();
-        meta.textContent = `${sanitize(data.name || 'Anonymous')} • ${date.toLocaleString()}`;
-        const txt = document.createElement('div');
-        txt.textContent = sanitize(data.text || '');
-        li.appendChild(meta);
-        li.appendChild(txt);
-        doubtListEl.prepend(li);
-    }
-    onChildAdded(doubtCommentsRef, (snapshot) => {
-        const val = snapshot.val();
-        if(val) renderDoubtComment(val);
-    });
-    doubtSubmitBtn.addEventListener('click', async () => {
-        const name = sanitize(doubtNameInput.value) || 'Anonymous';
-        const text = sanitize(doubtTextInput.value);
-        if(!text) return;
-        doubtSubmitBtn.disabled = true;
-        try {
-            await push(doubtCommentsRef, { name, text, createdAt: Date.now() });
-            doubtNameInput.value = '';
-            doubtTextInput.value = '';
-        } catch(e){
-            alert('Failed to post. Check console.');
-        } finally {
-            doubtSubmitBtn.disabled = false;
-        }
-    });
-
-    // ...existing code...
-    </script>
+      import { getDatabase, ref, push, onChildAdded, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+  
 </body>
 </html>
-
